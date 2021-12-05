@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from pyjson import lexer
 from pyjson.lexer import Token
@@ -13,19 +12,19 @@ class Error:
     msg: str
 
 
-Value = int | str | List["Value"]
+Value = int | str | list["Value"]
 
 
-def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
+def parse_array(tokens: list[Token], i: int = 0) -> tuple[list[Value], int] | Error:
     out, i = [], i + 1
     if tokens[i].type == ttype.RBRACKET:
-        return out
+        return out, i + 1
 
     val = parse_value(tokens, i)
     if isinstance(val, Error):
         return val
-    out.append(val)
-    i += 1
+    out.append(val[0])
+    i = val[1]
 
     while i < len(tokens) and tokens[i].type != ttype.RBRACKET:
         if tokens[i].type != ttype.COMMA:
@@ -36,21 +35,31 @@ def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
         val = parse_value(tokens, i)
         if isinstance(val, Error):
             return val
-        out.append(val)
-        i += 1
+        out.append(val[0])
+        i = val[1]
     if i > len(tokens):
         return Error("did not close array")
-    return out
+    return out, i + 1
 
 
-def parse_value(tokens: List[Token], i: int = 0) -> Value | Error:
+def parse_value(tokens: list[Token], i: int = 0) -> tuple[Value, int] | Error:
     token = tokens[i]
+    print(i, token.value, [t.value for t in tokens])
     if token.type == ttype.NUM:
-        return parse_num(token)
+        val = parse_num(token)
+        if isinstance(val, Error):
+            return val
+        return val, i + 1
     elif token.type == ttype.STRING:
-        return parse_str(token)
+        val = parse_str(token)
+        if isinstance(val, Error):
+            return val
+        return val, i + 1
     elif token.type == ttype.LBRACKET:
-        return parse_array(tokens, i)
+        val = parse_array(tokens, i)
+        if isinstance(val, Error):
+            return val
+        return val
     else:
         return Error(f"invalid token type {token}")
     pass

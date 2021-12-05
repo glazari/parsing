@@ -8,13 +8,18 @@ def test_parse_array():
     @dataclass
     class Test:
         exp: str
-        out: int | str
+        val: list[int | str]
+        i: int
+
+        @property
+        def out(self):
+            return self.val, self.i
 
     tests = [
-        Test("[]", []),
-        Test("[1]", [1]),
-        Test("[1,2]", [1, 2]),
-        Test('["t",2]', ["t", 2]),
+        Test("[]", [], 2),
+        Test("[1]", [1], 3),
+        Test("[1,2]", [1, 2], 5),
+        Test('["t",2]', ["t", 2], 5),
     ]
 
     for test in tests:
@@ -31,15 +36,21 @@ def test_parse_value():
     @dataclass
     class Test:
         exp: str
-        out: int | str
+        val: int | str
+        i: int
+
+        @property
+        def out(self):
+            return self.val, self.i
 
     tests = [
-        Test("1", 1),
-        Test('"this"', "this"),
-        Test('["this", 1]', ["this", 1]),
+        Test("1", 1, 1),
+        Test('"this"', "this", 1),
+        Test('["this", 1]', ["this", 1], 5),
     ]
 
     for test in tests:
+        print("*" * 40)
         got = parser.parse_value(lexer.lex(test.exp))
         if not got == test.out:
             print("test:", test.exp)
