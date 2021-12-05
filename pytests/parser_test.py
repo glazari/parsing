@@ -36,6 +36,7 @@ def test_parse_value():
     tests = [
         Test("1", 1),
         Test('"this"', "this"),
+        Test('["this", 1]', ["this", 1]),
     ]
 
     for test in tests:

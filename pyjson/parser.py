@@ -13,7 +13,10 @@ class Error:
     msg: str
 
 
-def parse_array(tokens: List[Token], i: int = 0) -> List(int | str) | Error:
+Value = int | str | List["Value"]
+
+
+def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
     out, i = [], i + 1
     if tokens[i].type == ttype.RBRACKET:
         return out
@@ -40,12 +43,14 @@ def parse_array(tokens: List[Token], i: int = 0) -> List(int | str) | Error:
     return out
 
 
-def parse_value(tokens: List[Token], i: int = 0) -> int | str:
+def parse_value(tokens: List[Token], i: int = 0) -> Value:
     token = tokens[i]
     if token.type == ttype.NUM:
         return parse_num(token)
     elif token.type == ttype.STRING:
         return parse_str(token)
+    elif token.type == ttype.LBRACKET:
+        return parse_array(tokens, i)
     else:
         return f"ERROR: invalid token type {token}"
     pass
