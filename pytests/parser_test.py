@@ -25,12 +25,7 @@ def test_parse_array():
 
     for test in tests:
         got = parser.parse_array(lexer.lex(test.exp))
-        if not got == test.out:
-            print("test:", test.exp)
-            print("exp:", test.out)
-            print("got:", got)
-            print()
-        assert got == test.out
+        assert_eq(test, got)
 
 
 def test_parse_value():
@@ -53,12 +48,7 @@ def test_parse_value():
     for test in tests:
         print("*" * 40)
         got = parser.parse_value(lexer.lex(test.exp))
-        if not got == test.out:
-            print("test:", test.exp)
-            print("exp:", test.out)
-            print("got:", got)
-            print()
-        assert got == test.out
+        assert_eq(test, got)
 
 
 def test_num():
@@ -78,12 +68,7 @@ def test_num():
 
     for test in tests:
         got = parser.parse_num(lexer.read_num(test.exp)[0])
-        if not got == test.out:
-            print("test:", test.exp)
-            print("exp:", test.out)
-            print("got:", got)
-            print()
-        assert got == test.out
+        assert_eq(test, got)
 
 
 def test_str():
@@ -100,9 +85,13 @@ def test_str():
 
     for test in tests:
         got = parser.parse_str(lexer.read_str(test.exp)[0])
-        if not got == test.out:
-            print("test:", test.exp)
-            print("exp:", test.out)
-            print("got:", got)
-            print()
-        assert got == test.out
+        assert_eq(test, got)
+
+
+def assert_eq(test, got):
+    if not got == test.out:
+        print("test:", test.exp)
+        print("exp:", test.out)
+        print("got:", got)
+        print()
+    assert got == test.out
