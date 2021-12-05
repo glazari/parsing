@@ -15,6 +15,14 @@ class Error:
 Value = int | str | list["Value"]
 
 
+def parse(string: str) -> Value:
+    tokens = lexer.lex(string)
+    val = parse_value(tokens)
+    if isinstance(val, Error):
+        raise Exception(val.msg)
+    return val[0]
+
+
 def parse_array(tokens: list[Token], i: int = 0) -> tuple[list[Value], int] | Error:
     out, i = [], i + 1
     if tokens[i].type == ttype.RBRACKET:
@@ -44,7 +52,7 @@ def parse_array(tokens: list[Token], i: int = 0) -> tuple[list[Value], int] | Er
 
 def parse_value(tokens: list[Token], i: int = 0) -> tuple[Value, int] | Error:
     token = tokens[i]
-    print(i, token.value, [t.value for t in tokens])
+    # print(i, token.value, [t.value for t in tokens])
     if token.type == ttype.NUM:
         val = parse_num(token)
         if isinstance(val, Error):
