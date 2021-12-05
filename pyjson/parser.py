@@ -24,3 +24,9 @@ def parse_num(t: Token) -> int:
     if t.type == ttype.ERROR:
         return None
     return float(t.value)
+
+
+def parse_str(t: Token) -> int:
+    if t.type == ttype.ERROR:
+        return None
+    return t.value

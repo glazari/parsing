@@ -27,3 +27,25 @@ def test_num():
             print("got:", got)
             print()
         assert got == test.out
+
+
+def test_str():
+    @dataclass
+    class Test:
+        exp: str
+        out: int
+
+    tests = [
+        Test('"this"', "this"),
+        Test('"that"', "that"),
+        Test('"asdfasdf"', "asdfasdf"),
+    ]
+
+    for test in tests:
+        got = parser.parse_str(lexer.read_str(test.exp)[0])
+        if not got == test.out:
+            print("test:", test.exp)
+            print("exp:", test.out)
+            print("got:", got)
+            print()
+        assert got == test.out
