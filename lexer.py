@@ -15,6 +15,11 @@ class Token:
 
 class Type(Enum):
     NUM = "NUM"
+    LBRACE = "{"
+    RBRACE = "}"
+    LBRACKET = "["
+    RBRACKET = "]"
+    COMMA = ","
     STRING = "STRING"
     NULL = "NULL"
     TRUE = "TRUE"
