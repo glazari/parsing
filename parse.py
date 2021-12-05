@@ -23,7 +23,11 @@ def parse(exp: str, i: int = 0) -> Node:
 def parse_num(exp: str, i: int = 0) -> (Node, int):
     num = exp[i]
     i += 1
-    while i < len(exp) and exp[i] in set("0123456789"):
+    point = False
+    while i < len(exp) and exp[i] in set("0123456789."):
+        if exp[i] == "." and point:
+            return (Node(None), i)  # syntax error
+        point = point or exp[i] == "."
         num += exp[i]
         i += 1
     return (Node(num), i)
@@ -45,6 +49,8 @@ def test_num():
         Test("2", Node("2"), 1),
         Test("10", Node("10"), 2),
         Test("123", Node("123"), 3),
+        Test("12.3", Node("12.3"), 4),
+        Test("1.2.3", Node(None), 3),
     ]
 
     for test in tests:
