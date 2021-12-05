@@ -4,6 +4,27 @@ from pyjson import lexer
 from pyjson import parser
 
 
+def test_parse_value():
+    @dataclass
+    class Test:
+        exp: str
+        out: int | str
+
+    tests = [
+        Test("1", 1),
+        Test('"this"', "this"),
+    ]
+
+    for test in tests:
+        got = parser.parse_value(lexer.lex(test.exp))
+        if not got == test.out:
+            print("test:", test.exp)
+            print("exp:", test.out)
+            print("got:", got)
+            print()
+        assert got == test.out
+
+
 def test_num():
     @dataclass
     class Test:
