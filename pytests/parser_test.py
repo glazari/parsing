@@ -61,7 +61,7 @@ def test_num():
         Test("10", 10),
         Test("123", 123),
         Test("12.3", 12.3),
-        Test("1.2.3", None),
+        Test("1.2.3", parser.Error("invalid num 1.2.")),
     ]
 
     for test in tests:

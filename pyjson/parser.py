@@ -22,7 +22,7 @@ def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
         return out
 
     val = parse_value(tokens, i)
-    if isinstance(val, str) and "ERROR" in val:
+    if isinstance(val, Error):
         return val
     out.append(val)
     i += 1
@@ -34,7 +34,7 @@ def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
         if i >= len(tokens):
             return Error("expected value after comma")
         val = parse_value(tokens, i)
-        if isinstance(val, str) and "ERROR" in val:
+        if isinstance(val, Error):
             return val
         out.append(val)
         i += 1
@@ -43,7 +43,7 @@ def parse_array(tokens: List[Token], i: int = 0) -> List[Value] | Error:
     return out
 
 
-def parse_value(tokens: List[Token], i: int = 0) -> Value:
+def parse_value(tokens: List[Token], i: int = 0) -> Value | Error:
     token = tokens[i]
     if token.type == ttype.NUM:
         return parse_num(token)
@@ -52,17 +52,17 @@ def parse_value(tokens: List[Token], i: int = 0) -> Value:
     elif token.type == ttype.LBRACKET:
         return parse_array(tokens, i)
     else:
-        return f"ERROR: invalid token type {token}"
+        return Error(f"invalid token type {token}")
     pass
 
 
-def parse_num(t: Token) -> int:
+def parse_num(t: Token) -> int | Error:
     if t.type == ttype.ERROR:
-        return None
+        return Error(f"invalid num {t.value}")
     return float(t.value)
 
 
-def parse_str(t: Token) -> str:
+def parse_str(t: Token) -> str | Error:
     if t.type == ttype.ERROR:
-        return None
+        return Error(f"invalid str {t.value}")
     return t.value
