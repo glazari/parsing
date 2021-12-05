@@ -21,7 +21,12 @@ def parse(exp: str, i: int = 0) -> Node:
 
 
 def parse_num(exp: str, i: int = 0) -> (Node, int):
-    return (Node(exp[i]), i + 1)
+    num = exp[i]
+    i += 1
+    while i < len(exp) and exp[i] in set("0123456789"):
+        num += exp[i]
+        i += 1
+    return (Node(num), i)
 
 
 def test_num():
@@ -37,6 +42,9 @@ def test_num():
 
     tests = [
         Test("1", Node("1"), 1),
+        Test("2", Node("2"), 1),
+        Test("10", Node("10"), 2),
+        Test("123", Node("123"), 3),
     ]
 
     for test in tests:
