@@ -58,3 +58,29 @@ def test_num():
             print("got:", got)
             print()
         assert got == test.out
+
+
+def test_str():
+    @dataclass
+    class Test:
+        exp: str
+        token: Token
+        i: int
+
+        @property
+        def out(self):
+            return (self.token, self.i)
+
+    tests = [
+        Test('"a"', Token("a", Type.STRING), 3),
+        Test('"a"', Token("a", Type.STRING), 3),
+    ]
+
+    for test in tests:
+        got = lexer.read_str(test.exp)
+        if not got == test.out:
+            print("test:", test.exp)
+            print("exp:", test.out)
+            print("got:", got)
+            print()
+        assert got == test.out

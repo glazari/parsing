@@ -42,7 +42,7 @@ def lex(exp: str, i: int = 0) -> List[Token]:
     return out
 
 
-def read_num(exp: str, i: int = 0) -> List[Token]:
+def read_num(exp: str, i: int = 0) -> Token:
     num = exp[i]
     i += 1
     point = False
@@ -53,3 +53,11 @@ def read_num(exp: str, i: int = 0) -> List[Token]:
         num += exp[i]
         i += 1
     return (Token(num, Type.NUM), i)
+
+
+def read_str(exp: str, i: int = 0) -> Token:
+    string, i = "", i + 1
+    while i < len(exp) and exp[i] != '"':
+        string += exp[i]
+        i += 1
+    return (Token(string, Type.STRING), i + 1)
