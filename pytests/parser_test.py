@@ -20,6 +20,7 @@ def test_parse_array():
         Test("[1]", [1], 3),
         Test("[1,2]", [1, 2], 5),
         Test('["t",2]', ["t", 2], 5),
+        Test("[1,2,[3]]", [1, 2, [3]], 9),
     ]
 
     for test in tests:
