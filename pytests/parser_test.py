@@ -1,29 +1,7 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 
-import pytest
-
-import lexer
-from lexer import Token
-from lexer import Type as ttype
-
-
-@dataclass
-class Node:
-    value: str
-    left: Node = None
-    right: Node = None
-
-
-def parse(exp: str, i: int = 0) -> Node:
-    pass
-
-
-def parse_num(t: Token) -> int:
-    if t.type == ttype.ERROR:
-        return None
-    return float(t.value)
+from pyjson import lexer
+from pyjson import parser
 
 
 def test_num():
@@ -42,7 +20,7 @@ def test_num():
     ]
 
     for test in tests:
-        got = parse_num(lexer.read_num(test.exp)[0])
+        got = parser.parse_num(lexer.read_num(test.exp)[0])
         if not got == test.out:
             print("test:", test.exp)
             print("exp:", test.out)
