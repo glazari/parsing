@@ -18,6 +18,12 @@ def test_lex():
         Test("1", [Token("1", Type.NUM), Token("", Type.EOF)]),
         Test("10", [Token("10", Type.NUM), Token("", Type.EOF)]),
         Test("10.2", [Token("10.2", Type.NUM), Token("", Type.EOF)]),
+        Test(" 1", [Token("1", Type.NUM), Token("", Type.EOF)]),
+        Test('  "this"  ', [Token("this", Type.STRING), Token("", Type.EOF)]),
+        Test(
+            '3  "this"  ',
+            [Token("3", Type.NUM), Token("this", Type.STRING), Token("", Type.EOF)],
+        ),
     ]
 
     for test in tests:

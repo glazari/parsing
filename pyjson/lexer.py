@@ -29,6 +29,8 @@ class Type(Enum):
 
 
 def lex(exp: str, i: int = 0) -> List[Token]:
+    i = skip_whitespace(exp, i)
+
     if i >= len(exp):
         return [Token("", Type.EOF)]
 
@@ -37,6 +39,13 @@ def lex(exp: str, i: int = 0) -> List[Token]:
     if ch in set("0123456789"):
         num, i = read_num(exp, i)
         out.append(num)
+    elif ch == '"':
+        string, i = read_str(exp, i)
+        out.append(string)
+    else:
+        err = f"unexpected: '{ch}' at pos {i}"
+        out.append(Token(err, Type.ERROR))
+        return out
 
     out.extend(lex(exp, i))
     return out
