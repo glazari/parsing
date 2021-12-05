@@ -4,6 +4,29 @@ from pyjson import lexer
 from pyjson import parser
 
 
+def test_parse_array():
+    @dataclass
+    class Test:
+        exp: str
+        out: int | str
+
+    tests = [
+        Test("[]", []),
+        Test("[1]", [1]),
+        Test("[1,2]", [1, 2]),
+        Test('["t",2]', ["t", 2]),
+    ]
+
+    for test in tests:
+        got = parser.parse_array(lexer.lex(test.exp))
+        if not got == test.out:
+            print("test:", test.exp)
+            print("exp:", test.out)
+            print("got:", got)
+            print()
+        assert got == test.out
+
+
 def test_parse_value():
     @dataclass
     class Test:

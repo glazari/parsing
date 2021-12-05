@@ -1,10 +1,43 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import List
 
 from pyjson import lexer
 from pyjson.lexer import Token
 from pyjson.lexer import Type as ttype
+
+
+@dataclass
+class Error:
+    msg: str
+
+
+def parse_array(tokens: List[Token], i: int = 0) -> List(int | str) | Error:
+    out, i = [], i + 1
+    if tokens[i].type == ttype.RBRACKET:
+        return out
+
+    val = parse_value(tokens, i)
+    if isinstance(val, str) and "ERROR" in val:
+        return val
+    out.append(val)
+    i += 1
+
+    while i < len(tokens) and tokens[i].type != ttype.RBRACKET:
+        if tokens[i].type != ttype.COMMA:
+            return Error("expecting comma")
+        i += 1
+        if i >= len(tokens):
+            return Error("expected value after comma")
+        val = parse_value(tokens, i)
+        if isinstance(val, str) and "ERROR" in val:
+            return val
+        out.append(val)
+        i += 1
+    if i > len(tokens):
+        return Error("did not close array")
+    return out
 
 
 def parse_value(tokens: List[Token], i: int = 0) -> int | str:
