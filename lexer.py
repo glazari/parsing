@@ -15,9 +15,12 @@ class Token:
 
 class Type(Enum):
     NUM = "NUM"
-    OP = "OP"
-    EOF = ""
+    STRING = "STRING"
+    NULL = "NULL"
+    TRUE = "TRUE"
+    FALSE = "FALSE"
     ERROR = "ERROR"
+    EOF = ""
 
 
 def lex(exp: str, i: int = 0) -> List[Token]:
