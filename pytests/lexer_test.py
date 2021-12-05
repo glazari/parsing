@@ -24,6 +24,14 @@ def test_lex():
             '3  "this"  ',
             [Token("3", Type.NUM), Token("this", Type.STRING), Token("", Type.EOF)],
         ),
+        Test("{", [Token("{", Type.LBRACE), Token("", Type.EOF)]),
+        Test("}", [Token("}", Type.RBRACE), Token("", Type.EOF)]),
+        Test("[", [Token("[", Type.LBRACKET), Token("", Type.EOF)]),
+        Test("]", [Token("]", Type.RBRACKET), Token("", Type.EOF)]),
+        Test(",", [Token(",", Type.COMMA), Token("", Type.EOF)]),
+        Test("true", [Token("true", Type.TRUE), Token("", Type.EOF)]),
+        Test("false", [Token("false", Type.FALSE), Token("", Type.EOF)]),
+        Test(":", [Token(":", Type.COLON), Token("", Type.EOF)]),
     ]
 
     for test in tests:

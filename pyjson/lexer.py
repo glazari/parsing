@@ -20,6 +20,7 @@ class Type(Enum):
     LBRACKET = "["
     RBRACKET = "]"
     COMMA = ","
+    COLON = ":"
     STRING = "STRING"
     NULL = "NULL"
     TRUE = "TRUE"
@@ -42,6 +43,30 @@ def lex(exp: str, i: int = 0) -> List[Token]:
     elif ch == '"':
         string, i = read_str(exp, i)
         out.append(string)
+    elif ch == "{":
+        out.append(Token("{", Type.LBRACE))
+        i += 1
+    elif ch == "}":
+        out.append(Token("}", Type.RBRACE))
+        i += 1
+    elif ch == "[":
+        out.append(Token("[", Type.LBRACKET))
+        i += 1
+    elif ch == "]":
+        out.append(Token("]", Type.RBRACKET))
+        i += 1
+    elif ch == ":":
+        out.append(Token(":", Type.COLON))
+        i += 1
+    elif ch == ",":
+        out.append(Token(",", Type.COMMA))
+        i += 1
+    elif ch == "t" and exp[i : i + 4] == "true":
+        out.append(Token("true", Type.TRUE))
+        i += 4
+    elif ch == "f" and exp[i : i + 5] == "false":
+        out.append(Token("false", Type.FALSE))
+        i += 5
     else:
         err = f"unexpected: '{ch}' at pos {i}"
         out.append(Token(err, Type.ERROR))
