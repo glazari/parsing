@@ -34,6 +34,29 @@ def test_num():
     @dataclass
     class Test:
         exp: str
+        i: int
+        out: int
+
+    tests = [
+        Test("  1", 0, 2),
+        Test(" \n1", 0, 2),
+        Test(" \t1", 0, 2),
+    ]
+
+    for test in tests:
+        got = lexer.skip_whitespace(test.exp, test.i)
+        if not got == test.out:
+            print("test:", test.exp)
+            print("exp:", test.out)
+            print("got:", got)
+            print()
+        assert got == test.out
+
+
+def test_skip_whitespace():
+    @dataclass
+    class Test:
+        exp: str
         token: Token
         i: int
 

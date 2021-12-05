@@ -42,6 +42,12 @@ def lex(exp: str, i: int = 0) -> List[Token]:
     return out
 
 
+def skip_whitespace(exp: str, i: int = 0) -> int:
+    while i < len(exp) and exp[i] in set(" \n\t"):
+        i += 1
+    return i
+
+
 def read_num(exp: str, i: int = 0) -> Token:
     num = exp[i]
     i += 1
