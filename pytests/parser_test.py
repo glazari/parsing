@@ -4,6 +4,30 @@ from pyjson import lexer
 from pyjson import parser
 
 
+def test_parse_object():
+    @dataclass
+    class Test:
+        exp: str
+        val: dict[parser.Value]
+        i: int
+
+        @property
+        def out(self):
+            return self.val, self.i
+
+    tests = [
+        Test("{}", {}, 2),
+        Test('{"one": 2}', {"one": 2}, 5),
+        Test('{"one": 2, "two": 1}', {"one": 2, "two": 1}, 9),
+        Test('{"one": [1,2]}', {"one": [1, 2]}, 9),
+        Test('{"one": {"1":2}}', {"one": {"1": 2}}, 9),
+    ]
+
+    for test in tests:
+        got = parser.parse_object(lexer.lex(test.exp))
+        assert_eq(test, got)
+
+
 def test_parse_array():
     @dataclass
     class Test:
@@ -43,6 +67,7 @@ def test_parse_value():
         Test("1", 1, 1),
         Test('"this"', "this", 1),
         Test('["this", 1]', ["this", 1], 5),
+        Test('{"one": 2}', {"one": 2}, 5),
     ]
 
     for test in tests:
