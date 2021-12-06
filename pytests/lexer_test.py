@@ -44,7 +44,7 @@ def test_lex():
         assert got == test.out
 
 
-def test_num():
+def test_skip_whitespace():
     @dataclass
     class Test:
         exp: str
@@ -67,7 +67,7 @@ def test_num():
         assert got == test.out
 
 
-def test_skip_whitespace():
+def test_num():
     @dataclass
     class Test:
         exp: str
