@@ -25,15 +25,9 @@ pub fn parse(string: &str) -> Value {
 fn parse_value<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Value<'a>, usize), Error> {
     let token = &tokens[i];
     match token {
-        Token::NUM(_) => match parse_num(token) {
-            Ok(num) => Ok((Value::NUM(num), i + 1)),
-            Err(e) => Err(e),
-        },
+        Token::NUM(_) => parse_num(token).map(|num| (Value::NUM(num), i + 1)),
         Token::STRING(s) => Ok((Value::STR(s), i + 1)),
-        Token::LBRACKET => match parse_array(tokens, i) {
-            Ok((arr, i)) => Ok((Value::ARR(arr), i)),
-            Err(e) => Err(e),
-        },
+        Token::LBRACKET => parse_array(tokens, i).map(|(arr, i)| (Value::ARR(arr), i)),
         _ => panic!("Unexpected token: {:?}", token),
     }
 }
