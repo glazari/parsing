@@ -2,16 +2,17 @@ mod lexer;
 mod parser;
 
 fn main() {
-    let out = lexer::lex("1 2 \"asdf\"", 0);
-    println!("'{:?}", out);
-
-    let out = parser::parse(
-        r#"{
+    let exp = r#"{
         "this": "that",
         "list": [1,2,3],
-        "obj": {"false": 1},
-        "true": 3
-    }"#,
-    );
+        "obj": {"false": false},
+        "true": true,
+        "null": null
+    }"#;
+
+    let out = lexer::lex(exp, 0);
+    println!("'{:?}", out);
+
+    let out = parser::parse(exp);
     println!("'{:?}", out);
 }

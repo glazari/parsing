@@ -8,6 +8,8 @@ pub enum Value<'a> {
     STR(&'a str),
     ARR(Vec<Value<'a>>),
     OBJ(HashMap<&'a str, Value<'a>>),
+    BOOL(bool),
+    NULL,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -32,6 +34,9 @@ fn parse_value<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Value<'a>, usiz
         Token::STRING(s) => Ok((Value::STR(s), i + 1)),
         Token::LBRACKET => parse_array(tokens, i).map(|(arr, i)| (Value::ARR(arr), i)),
         Token::LBRACE => parse_object(tokens, i).map(|(arr, i)| (Value::OBJ(arr), i)),
+        Token::BOOL("true") => Ok((Value::BOOL(true), i + 1)),
+        Token::BOOL("false") => Ok((Value::BOOL(false), i + 1)),
+        Token::NULL => Ok((Value::NULL, i + 1)),
         _ => Err(Error::UnexpectedToken(tokens[i].to_string())),
     }
 }
@@ -203,6 +208,9 @@ fn test_parse() {
             Value::ARR(vec![Value::NUM(1.), Value::NUM(2.), Value::NUM(3.)]),
         ),
         (r#"{}"#, Value::OBJ(HashMap::new())),
+        ("true", Value::BOOL(true)),
+        ("false", Value::BOOL(false)),
+        ("null", Value::NULL),
     ];
 
     for test in tests.iter() {

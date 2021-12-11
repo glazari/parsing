@@ -59,9 +59,9 @@ fn skip_whitespace(exp: &str, start_i: usize) -> usize {
     return i;
 }
 
-fn read_non_whitespace(exp: &str, start_i: usize) -> (&str, usize) {
+fn read_alphanumeric(exp: &str, start_i: usize) -> (&str, usize) {
     let (exb, mut i) = (exp.as_bytes(), start_i);
-    while i < exb.len() && !exb[i].is_ascii_whitespace() {
+    while i < exb.len() && exb[i].is_ascii_alphanumeric() {
         i += 1
     }
     return (&exp[start_i..i], i);
@@ -86,14 +86,14 @@ pub fn lex(exp: &str, start_i: usize) -> Vec<Token> {
         ':' => (Token::COLON, i + 1),
         ',' => (Token::COMMA, i + 1),
         _ => {
-            let (word, i) = read_non_whitespace(exp, i);
+            let (word, i) = read_alphanumeric(exp, i);
             match word {
                 "true" | "false" => (Token::BOOL(word), i),
                 "null" => (Token::NULL, i),
                 _ => {
                     return vec![Token::ERROR(format!(
-                        "unexpected token {} at pos {}",
-                        ch as char, i
+                        "unexpected token {}, ch {}, at pos {}",
+                        word, ch as char, i
                     ))]
                 }
             }
