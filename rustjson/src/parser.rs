@@ -76,6 +76,14 @@ fn test_array() {
         ("[]", vec![], 2),
         ("[1]", vec![Value::NUM(1.)], 3),
         ("[1,2]", vec![Value::NUM(1.), Value::NUM(2.)], 5),
+        (
+            "[1,[4, 5]]",
+            vec![
+                Value::NUM(1.),
+                Value::ARR(vec![Value::NUM(4.), Value::NUM(5.)]),
+            ],
+            9,
+        ),
     ];
 
     for test in tests.iter() {
