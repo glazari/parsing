@@ -16,7 +16,7 @@ enum Token<'a> {
     STRING(&'a str),
     NULL,
     BOOL(&'a str),
-    ERROR(&'a str),
+    ERROR(String),
     EOF,
 }
 
@@ -49,6 +49,51 @@ fn skip_whitespace(exp: &str, start_i: usize) -> usize {
     return i;
 }
 
+fn lex(exp: &str, start_i: usize) -> Vec<Token> {
+    let mut i = skip_whitespace(exp, start_i);
+    let exb = exp.as_bytes();
+
+    if i >= exb.len() {
+        return [Token::EOF].to_vec();
+    }
+
+    let ch = exb[i];
+    let (token, i) = match ch as char {
+        '0'..='9' => read_num(exp, i),
+        '"' => read_str(exp, i),
+        _ => {
+            return vec![Token::ERROR(format!(
+                "unexpected token {} at pos {}",
+                ch as char, i
+            ))]
+        }
+    };
+    let mut out: Vec<Token> = vec![token];
+
+    out.extend(lex(exp, i));
+
+    return out;
+}
+#[cfg(test)]
+#[test]
+fn test_lex() {
+    let tests = [
+        ("  ", vec![Token::EOF]),
+        (" 1 ", vec![Token::NUM("1"), Token::EOF]),
+        ("\"a\"", vec![Token::STRING("a"), Token::EOF]),
+        (
+            "1 \"a\" ",
+            vec![Token::NUM("1"), Token::STRING("a"), Token::EOF],
+        ),
+    ];
+
+    for test in tests.iter() {
+        let (e, v) = test;
+        let got = lex(e, 0);
+        assert_eq!(got, v.clone(), "{}", e);
+    }
+}
+
 #[cfg(test)]
 #[test]
 fn test_skip_whitespace() {
@@ -57,7 +102,7 @@ fn test_skip_whitespace() {
     for test in tests.iter() {
         let (e, i) = test;
         let got = skip_whitespace(e, 0);
-        assert_eq!(got, *i);
+        assert_eq!(got, *i, "{}", e);
     }
 }
 
