@@ -32,7 +32,7 @@ fn parse_value<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Value<'a>, usiz
         Token::STRING(s) => Ok((Value::STR(s), i + 1)),
         Token::LBRACKET => parse_array(tokens, i).map(|(arr, i)| (Value::ARR(arr), i)),
         Token::LBRACE => parse_object(tokens, i).map(|(arr, i)| (Value::OBJ(arr), i)),
-        _ => panic!("Unexpected token: {:?}", token),
+        _ => Err(Error::UnexpectedToken(tokens[i].to_string())),
     }
 }
 
@@ -42,6 +42,17 @@ fn parse_num<'a>(t: &'a Token<'a>) -> Result<f32, Error> {
         _ => return Err(Error::NotANumber(t.to_string())),
     };
     return s.parse().map_err(|_| Error::NotANumber(t.to_string()));
+}
+
+fn expect_comma(tokens: &Vec<Token>, i: usize) -> Result<usize, Error> {
+    if tokens[i] != Token::COMMA {
+        return Err(Error::UnexpectedToken(tokens[i].to_string()));
+    }
+    let i = i + 1;
+    if i >= tokens.len() {
+        return Err(Error::ExpectedValueAfterComma);
+    }
+    Ok(i)
 }
 
 fn parse_array<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Vec<Value<'a>>, usize), Error> {
@@ -55,13 +66,7 @@ fn parse_array<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Vec<Value<'a>>,
     out.push(val);
     let mut loop_i = i;
     while loop_i < tokens.len() && tokens[loop_i] != Token::RBRACKET {
-        if tokens[loop_i] != Token::COMMA {
-            return Err(Error::UnexpectedToken(tokens[loop_i].to_string()));
-        }
-        loop_i += 1;
-        if loop_i >= tokens.len() {
-            return Err(Error::ExpectedValueAfterComma);
-        }
+        loop_i = expect_comma(tokens, loop_i)?;
         let (val, i) = parse_value(tokens, loop_i)?;
         out.push(val);
         loop_i = i;
@@ -79,7 +84,7 @@ fn parse_key_pair<'a>(
 ) -> Result<(&'a str, Value<'a>, usize), Error> {
     let (key, i) = match tokens[i] {
         Token::STRING(s) => (s, i + 1),
-        _ => panic!("Unexpected token: {:?}", tokens[i]),
+        _ => return Err(Error::UnexpectedToken(tokens[i].to_string())),
     };
 
     if i >= tokens.len() || tokens[i] != Token::COLON {
@@ -102,13 +107,7 @@ fn parse_object<'a>(
     out.insert(key, val);
 
     while loop_i < tokens.len() && tokens[loop_i] != Token::RBRACE {
-        if tokens[loop_i] != Token::COMMA {
-            return Err(Error::UnexpectedToken(tokens[loop_i].to_string()));
-        }
-        loop_i += 1;
-        if loop_i >= tokens.len() {
-            return Err(Error::ExpectedValueAfterComma);
-        }
+        loop_i = expect_comma(tokens, loop_i)?;
         let (key, val, i) = parse_key_pair(tokens, loop_i)?;
         out.insert(key, val);
         loop_i = i;
