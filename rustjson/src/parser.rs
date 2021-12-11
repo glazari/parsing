@@ -1,8 +1,9 @@
 use crate::lexer::{self, Token};
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Value {
+pub enum Value<'a> {
     NUM(f32),
+    STR(&'a str),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -23,7 +24,8 @@ fn parse_value(tokens: Vec<Token>, i: usize) -> Result<(Value, usize), Error> {
             Ok(num) => Ok((Value::NUM(num), i + 1)),
             Err(e) => Err(e),
         },
-        _ => panic!("hi"),
+        Token::STRING(s) => Ok((Value::STR(s), i + 1)),
+        _ => panic!("Invalid token: {:?}", token),
     }
 }
 
@@ -55,6 +57,7 @@ fn test_parse() {
         ("1", Value::NUM(1.)),
         ("21", Value::NUM(21.)),
         ("123", Value::NUM(123.)),
+        (" \"asdf\"  ", Value::STR("asdf")),
     ];
 
     for test in tests.iter() {
