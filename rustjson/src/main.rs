@@ -22,10 +22,8 @@ enum Token<'a> {
 
 fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
     let exb = exp.as_bytes();
-    let mut ch = exb[start_i];
     let mut i = start_i + 1;
     while i < exb.len() && exb[i].is_ascii_digit() {
-        ch = exb[i];
         i = i + 1;
     }
 
@@ -34,7 +32,7 @@ fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
 
 fn read_str(exp: &str, start_i: usize) -> (Token, usize) {
     let exb = exp.as_bytes();
-    let (mut ch, mut i) = (exb[start_i], start_i + 1);
+    let mut i = start_i + 1;
     while i < exb.len() && exb[i] != '\"' as u8 {
         i += 1
     }
@@ -49,8 +47,16 @@ fn skip_whitespace(exp: &str, start_i: usize) -> usize {
     return i;
 }
 
+fn read_non_whitespace(exp: &str, start_i: usize) -> (&str, usize) {
+    let (exb, mut i) = (exp.as_bytes(), start_i);
+    while i < exb.len() && !exb[i].is_ascii_whitespace() {
+        i += 1
+    }
+    return (&exp[start_i..i], i);
+}
+
 fn lex(exp: &str, start_i: usize) -> Vec<Token> {
-    let mut i = skip_whitespace(exp, start_i);
+    let i = skip_whitespace(exp, start_i);
     let exb = exp.as_bytes();
 
     if i >= exb.len() {
@@ -68,10 +74,17 @@ fn lex(exp: &str, start_i: usize) -> Vec<Token> {
         ':' => (Token::COLON, i + 1),
         ',' => (Token::COMMA, i + 1),
         _ => {
-            return vec![Token::ERROR(format!(
-                "unexpected token {} at pos {}",
-                ch as char, i
-            ))]
+            let (word, i) = read_non_whitespace(exp, i);
+            match word {
+                "true" | "false" => (Token::BOOL(word), i),
+                "null" => (Token::NULL, i),
+                _ => {
+                    return vec![Token::ERROR(format!(
+                        "unexpected token {} at pos {}",
+                        ch as char, i
+                    ))]
+                }
+            }
         }
     };
     let mut out: Vec<Token> = vec![token];
@@ -80,6 +93,7 @@ fn lex(exp: &str, start_i: usize) -> Vec<Token> {
 
     return out;
 }
+
 #[cfg(test)]
 #[test]
 fn test_lex() {
@@ -97,12 +111,33 @@ fn test_lex() {
         ("]", vec![Token::RBRACKET, Token::EOF]),
         (":", vec![Token::COLON, Token::EOF]),
         (",", vec![Token::COMMA, Token::EOF]),
+        ("true", vec![Token::BOOL("true"), Token::EOF]),
+        ("false", vec![Token::BOOL("false"), Token::EOF]),
+        ("null", vec![Token::NULL, Token::EOF]),
     ];
 
     for test in tests.iter() {
         let (e, v) = test;
         let got = lex(e, 0);
         assert_eq!(got, v.clone(), "{}", e);
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn test_read_non_whitespace() {
+    let tests = [
+        ("true ", "true", 4),
+        ("false ", "false", 5),
+        ("null ", "null", 4),
+        ("asdfasdf\n\t  ", "asdfasdf", 8),
+        ("%#$@()", "%#$@()", 6),
+    ];
+
+    for test in tests.iter() {
+        let (e, t, i) = test;
+        let got = read_non_whitespace(e, 0);
+        assert_eq!(got, (*t, *i));
     }
 }
 
