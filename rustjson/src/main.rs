@@ -1,10 +1,12 @@
+use std::char;
+
 fn main() {
     println!("Hello, world!");
 }
 
 #[derive(Debug, PartialEq, Clone)]
-enum Token {
-    NUM(String),
+enum Token<'a> {
+    NUM(&'a str),
     LBRACE,
     RBRACE,
     LBRACKET,
@@ -18,29 +20,31 @@ enum Token {
     EOF,
 }
 
+fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
+    let exb = exp.as_bytes();
+    let mut ch = exb[start_i];
+    let mut i = start_i + 1;
+    while i < exb.len() && exb[i].is_ascii_digit() {
+        ch = exb[i];
+        i = i + 1;
+    }
 
-fn read_num(exp: &str, i: usize) -> (Token, usize) {
-    return (Token::EOF, 1);
+    return (Token::NUM(&exp[start_i..i]), i);
 }
-
-
 
 #[cfg(test)]
 #[test]
 fn tokenize_num() {
-    struct Test<'a> {
-        e: &'a str,  // expression
-        t: Token,    // output token
-        i: usize,    // output char posistion
-    }
-
     let tests = [
-        Test{e: "1", t: Token::NUM("1".to_string()), i: 1},
+        ("1", Token::NUM("1"), 1),
+        ("2", Token::NUM("2"), 1),
+        ("21", Token::NUM("21"), 2),
+        ("123", Token::NUM("123"), 3),
     ];
 
-    for  test in tests.iter() {
-        let got = read_num(test.e, 0);
-        assert_eq!(got, (test.t.clone(), test.i));
-
+    for test in tests.iter() {
+        let (e, t, i) = test;
+        let got = read_num(e, 0);
+        assert_eq!(got, (t.clone(), *i));
     }
 }
