@@ -16,6 +16,25 @@ pub enum Token<'a> {
     EOF,
 }
 
+impl<'a> Token<'a> {
+    pub fn to_string(&self) -> String {
+        match self {
+            Token::NUM(n) => n.to_string(),
+            Token::STRING(s) => s.to_string(),
+            Token::ERROR(e) => e.to_string(),
+            Token::BOOL(b) => b.to_string(),
+            Token::LBRACE => "{".to_string(),
+            Token::RBRACE => "}".to_string(),
+            Token::LBRACKET => "[".to_string(),
+            Token::RBRACKET => "]".to_string(),
+            Token::COMMA => ",".to_string(),
+            Token::COLON => ":".to_string(),
+            Token::NULL => "null".to_string(),
+            Token::EOF => "".to_string(),
+        }
+    }
+}
+
 fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
     let (exb, mut i) = (exp.as_bytes(), start_i + 1);
     while i < exb.len() && exb[i].is_ascii_digit() {
