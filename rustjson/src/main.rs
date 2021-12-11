@@ -13,10 +13,10 @@ enum Token<'a> {
     RBRACKET,
     COMMA,
     COLON,
-    STRING(String),
+    STRING(&'a str),
     NULL,
-    BOOL(String),
-    ERROR(String),
+    BOOL(&'a str),
+    ERROR(&'a str),
     EOF,
 }
 
@@ -30,6 +30,31 @@ fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
     }
 
     return (Token::NUM(&exp[start_i..i]), i);
+}
+
+fn read_str(exp: &str, start_i: usize) -> (Token, usize) {
+    let exb = exp.as_bytes();
+    let (mut ch, mut i) = (exb[start_i], start_i + 1);
+    while i < exb.len() && exb[i] != '\"' as u8 {
+        i += 1
+    }
+    return (Token::STRING(&exp[start_i + 1..i]), i + 1);
+}
+
+#[cfg(test)]
+#[test]
+fn tokenize_str() {
+    let tests = [
+        ("\"a\"", Token::STRING("a"), 3),
+        ("\"ab\"", Token::STRING("ab"), 4),
+        ("\"abc\"", Token::STRING("abc"), 5),
+    ];
+
+    for test in tests.iter() {
+        let (e, t, i) = test;
+        let got = read_str(e, 0);
+        assert_eq!(got, (t.clone(), *i));
+    }
 }
 
 #[cfg(test)]
