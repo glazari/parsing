@@ -61,6 +61,12 @@ fn lex(exp: &str, start_i: usize) -> Vec<Token> {
     let (token, i) = match ch as char {
         '0'..='9' => read_num(exp, i),
         '"' => read_str(exp, i),
+        '{' => (Token::LBRACE, i + 1),
+        '}' => (Token::RBRACE, i + 1),
+        '[' => (Token::LBRACKET, i + 1),
+        ']' => (Token::RBRACKET, i + 1),
+        ':' => (Token::COLON, i + 1),
+        ',' => (Token::COMMA, i + 1),
         _ => {
             return vec![Token::ERROR(format!(
                 "unexpected token {} at pos {}",
@@ -85,6 +91,12 @@ fn test_lex() {
             "1 \"a\" ",
             vec![Token::NUM("1"), Token::STRING("a"), Token::EOF],
         ),
+        ("{", vec![Token::LBRACE, Token::EOF]),
+        ("}", vec![Token::RBRACE, Token::EOF]),
+        ("[", vec![Token::LBRACKET, Token::EOF]),
+        ("]", vec![Token::RBRACKET, Token::EOF]),
+        (":", vec![Token::COLON, Token::EOF]),
+        (",", vec![Token::COMMA, Token::EOF]),
     ];
 
     for test in tests.iter() {
