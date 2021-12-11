@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::lexer::{self, Token};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -5,6 +7,7 @@ pub enum Value<'a> {
     NUM(f32),
     STR(&'a str),
     ARR(Vec<Value<'a>>),
+    OBJ(HashMap<&'a str, Value<'a>>),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -13,7 +16,7 @@ enum Error {
     UnexpectedToken(String),
     ExpectedValueAfterComma,
     UnclosedArray,
-    E,
+    ExpectedColonInObj,
 }
 
 pub fn parse(string: &str) -> Value {
@@ -28,6 +31,7 @@ fn parse_value<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Value<'a>, usiz
         Token::NUM(_) => parse_num(token).map(|num| (Value::NUM(num), i + 1)),
         Token::STRING(s) => Ok((Value::STR(s), i + 1)),
         Token::LBRACKET => parse_array(tokens, i).map(|(arr, i)| (Value::ARR(arr), i)),
+        Token::LBRACE => parse_object(tokens, i).map(|(arr, i)| (Value::OBJ(arr), i)),
         _ => panic!("Unexpected token: {:?}", token),
     }
 }
@@ -67,6 +71,86 @@ fn parse_array<'a>(tokens: &Vec<Token<'a>>, i: usize) -> Result<(Vec<Value<'a>>,
     }
 
     return Ok((out, loop_i + 1));
+}
+
+fn parse_key_pair<'a>(
+    tokens: &Vec<Token<'a>>,
+    i: usize,
+) -> Result<(&'a str, Value<'a>, usize), Error> {
+    let (key, i) = match tokens[i] {
+        Token::STRING(s) => (s, i + 1),
+        _ => panic!("Unexpected token: {:?}", tokens[i]),
+    };
+
+    if i >= tokens.len() || tokens[i] != Token::COLON {
+        return Err(Error::ExpectedColonInObj);
+    }
+    let (val, i) = parse_value(tokens, i + 1)?;
+    return Ok((key, val, i));
+}
+
+fn parse_object<'a>(
+    tokens: &Vec<Token<'a>>,
+    i: usize,
+) -> Result<(HashMap<&'a str, Value<'a>>, usize), Error> {
+    let mut out: HashMap<&str, Value> = HashMap::new();
+    let i = i + 1;
+    if tokens[i] == Token::RBRACE {
+        return Ok((out, i + 1));
+    }
+    let (key, val, mut loop_i) = parse_key_pair(tokens, i)?;
+    out.insert(key, val);
+
+    while loop_i < tokens.len() && tokens[loop_i] != Token::RBRACE {
+        if tokens[loop_i] != Token::COMMA {
+            return Err(Error::UnexpectedToken(tokens[loop_i].to_string()));
+        }
+        loop_i += 1;
+        if loop_i >= tokens.len() {
+            return Err(Error::ExpectedValueAfterComma);
+        }
+        let (key, val, i) = parse_key_pair(tokens, loop_i)?;
+        out.insert(key, val);
+        loop_i = i;
+    }
+    return Ok((out, loop_i + 1));
+}
+
+#[cfg(test)]
+#[test]
+fn test_obj() {
+    let tests = [
+        ("{}", vec![], 2),
+        (r#"{"this":1}"#, vec![("this", Value::NUM(1.))], 5),
+        (
+            r#"{"this":1, "that":"a"}"#,
+            vec![("this", Value::NUM(1.)), ("that", Value::STR("a"))],
+            9,
+        ),
+    ];
+
+    for test in tests.iter() {
+        let (e, out, i) = test;
+        let out: HashMap<&str, Value> = out.iter().cloned().collect();
+        let (got, got_i) = parse_object(&lexer::lex(e, 0), 0).expect("test case failed");
+        assert_eq!(out, got, "{}", e);
+        assert_eq!(*i, got_i, "{}", e);
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn test_parse_key_pair() {
+    let tests = [(r#""this":1"#, ("this", Value::NUM(1.), 3))];
+
+    for test in tests.iter() {
+        let (e, out) = test;
+        let (o_key, o_val, o_i) = out;
+        let (g_key, g_val, g_i) = parse_key_pair(&lexer::lex(e, 0), 0).expect("test case failed");
+        assert_eq!(*o_key, g_key, "{}", e);
+        assert_eq!(*o_val, g_val, "{}", e);
+        assert_eq!(*o_i, g_i, "{}", e);
+    }
 }
 
 #[cfg(test)]
@@ -119,6 +203,7 @@ fn test_parse() {
             "[1,2,3]",
             Value::ARR(vec![Value::NUM(1.), Value::NUM(2.), Value::NUM(3.)]),
         ),
+        (r#"{}"#, Value::OBJ(HashMap::new())),
     ];
 
     for test in tests.iter() {
