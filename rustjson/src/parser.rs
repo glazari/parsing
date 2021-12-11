@@ -27,22 +27,6 @@ fn parse_value(tokens: Vec<Token>, i: usize) -> Result<(Value, usize), Error> {
     }
 }
 
-#[cfg(test)]
-#[test]
-fn test_parse() {
-    let tests = [
-        ("1", Value::NUM(1.)),
-        ("21", Value::NUM(21.)),
-        ("123", Value::NUM(123.)),
-    ];
-
-    for test in tests.iter() {
-        let (e, out) = test;
-        let got = parse(e);
-        assert_eq!(*out, got);
-    }
-}
-
 fn parse_num<'a>(t: &'a Token<'a>) -> Result<f32, Error> {
     let s = match t {
         Token::NUM(x) => x,
@@ -60,6 +44,22 @@ fn test_parse_num() {
         let (e, out) = test;
         let token = &lexer::lex(e, 0)[0];
         let got = parse_num(token);
+        assert_eq!(*out, got);
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn test_parse() {
+    let tests = [
+        ("1", Value::NUM(1.)),
+        ("21", Value::NUM(21.)),
+        ("123", Value::NUM(123.)),
+    ];
+
+    for test in tests.iter() {
+        let (e, out) = test;
+        let got = parse(e);
         assert_eq!(*out, got);
     }
 }
