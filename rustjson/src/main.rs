@@ -41,6 +41,26 @@ fn read_str(exp: &str, start_i: usize) -> (Token, usize) {
     return (Token::STRING(&exp[start_i + 1..i]), i + 1);
 }
 
+fn skip_whitespace(exp: &str, start_i: usize) -> usize {
+    let (exb, mut i) = (exp.as_bytes(), start_i);
+    while i < exb.len() && exb[i].is_ascii_whitespace() {
+        i += 1
+    }
+    return i;
+}
+
+#[cfg(test)]
+#[test]
+fn test_skip_whitespace() {
+    let tests = [(" a", 1), ("  v", 2), ("   k", 3), ("a   k", 0)];
+
+    for test in tests.iter() {
+        let (e, i) = test;
+        let got = skip_whitespace(e, 0);
+        assert_eq!(got, *i);
+    }
+}
+
 #[cfg(test)]
 #[test]
 fn tokenize_str() {
