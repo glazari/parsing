@@ -1,14 +1,7 @@
 use std::char;
 
-fn main() {
-    let out = lex("1 2 \"asdf\"", 0);
-    println!("'{:?}", out);
-
-    println!("Hello, world!");
-}
-
 #[derive(Debug, PartialEq, Clone)]
-enum Token<'a> {
+pub enum Token<'a> {
     NUM(&'a str),
     LBRACE,
     RBRACE,
@@ -55,7 +48,7 @@ fn read_non_whitespace(exp: &str, start_i: usize) -> (&str, usize) {
     return (&exp[start_i..i], i);
 }
 
-fn lex(exp: &str, start_i: usize) -> Vec<Token> {
+pub fn lex(exp: &str, start_i: usize) -> Vec<Token> {
     let i = skip_whitespace(exp, start_i);
     let exb = exp.as_bytes();
 
