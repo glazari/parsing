@@ -1,6 +1,9 @@
 use std::char;
 
 fn main() {
+    let out = lex("1 2 \"asdf\"", 0);
+    println!("'{:?}", out);
+
     println!("Hello, world!");
 }
 
@@ -21,18 +24,15 @@ enum Token<'a> {
 }
 
 fn read_num(exp: &str, start_i: usize) -> (Token, usize) {
-    let exb = exp.as_bytes();
-    let mut i = start_i + 1;
+    let (exb, mut i) = (exp.as_bytes(), start_i + 1);
     while i < exb.len() && exb[i].is_ascii_digit() {
         i = i + 1;
     }
-
     return (Token::NUM(&exp[start_i..i]), i);
 }
 
 fn read_str(exp: &str, start_i: usize) -> (Token, usize) {
-    let exb = exp.as_bytes();
-    let mut i = start_i + 1;
+    let (exb, mut i) = (exp.as_bytes(), start_i + 1);
     while i < exb.len() && exb[i] != '\"' as u8 {
         i += 1
     }
