@@ -64,7 +64,7 @@ fn lex(exp: &str, start_i: usize) -> Vec<Token> {
     }
 
     let ch = exb[i];
-    let (token, i) = match ch as char {
+    let (token, new_i) = match ch as char {
         '0'..='9' => read_num(exp, i),
         '"' => read_str(exp, i),
         '{' => (Token::LBRACE, i + 1),
@@ -87,9 +87,12 @@ fn lex(exp: &str, start_i: usize) -> Vec<Token> {
             }
         }
     };
-    let mut out: Vec<Token> = vec![token];
+    if new_i == i {
+        return vec![Token::ERROR(format!("stopped advancing at pos {}", i))];
+    }
 
-    out.extend(lex(exp, i));
+    let mut out: Vec<Token> = vec![token];
+    out.extend(lex(exp, new_i));
 
     return out;
 }
@@ -119,7 +122,7 @@ fn test_lex() {
     for test in tests.iter() {
         let (e, v) = test;
         let got = lex(e, 0);
-        assert_eq!(got, v.clone(), "{}", e);
+        assert_eq!(got, v.clone(), "'{}'", e);
     }
 }
 
