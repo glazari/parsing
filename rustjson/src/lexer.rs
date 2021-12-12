@@ -140,18 +140,17 @@ fn test_lex() {
 
 #[cfg(test)]
 #[test]
-fn test_read_non_whitespace() {
+fn test_read_alphanumeric() {
     let tests = [
         ("true ", "true", 4),
         ("false ", "false", 5),
         ("null ", "null", 4),
         ("asdfasdf\n\t  ", "asdfasdf", 8),
-        ("%#$@()", "%#$@()", 6),
     ];
 
     for test in tests.iter() {
         let (e, t, i) = test;
-        let got = read_non_whitespace(e, 0);
+        let got = read_alphanumeric(e, 0);
         assert_eq!(got, (*t, *i));
     }
 }
